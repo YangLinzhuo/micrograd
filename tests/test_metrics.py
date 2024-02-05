@@ -2,8 +2,6 @@
 Unit tests for metrics
 """
 
-# pylint: disable=missing-docstring
-
 from math import isclose
 from pyfit.engine import Scalar, Vector
 from pyfit.metrics import mean_squared_error, binary_accuracy

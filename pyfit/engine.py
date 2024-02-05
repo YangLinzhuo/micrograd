@@ -7,28 +7,30 @@ Heavily inspired by https://github.com/karpathy/micrograd/blob/master/micrograd/
 # https://stackoverflow.com/questions/35701624/pylint-w0212-protected-access
 # pylint: disable=protected-access
 
-from typing import Union, Tuple, List, Set, Callable
+from collections.abc import Callable
+from typing import Self
 
 
 class Scalar:
     """Stores a single scalar value and its gradient"""
 
     def __init__(
-        self, data: float, children: Tuple["Scalar", ...] = (), op: str = ""
+        self, data: float, children: tuple[Self, ...] = (), op: str = ""
     ) -> None:
-        self.data: float = data
+        self.data: float = data #if isinstance(data, float) else data.data
         self.grad: float = 0
 
         # Internal variables used for autograd graph construction
         self._backward: Callable = lambda: None
-        self._prev: Set[Scalar] = set(children)
+        self._prev: set[Self] = set(children)
         self._op = (
             op  # The operation that produced this node, for graphviz / debugging / etc
         )
 
-    def __add__(self, other: Union["Scalar", float]) -> "Scalar":
-        _other: Scalar = other if isinstance(other, Scalar) else Scalar(other)
-        out: Scalar = Scalar(self.data + _other.data, (self, _other), "+")
+    def __add__(self, other: Self | float) -> Self:
+        self_type: type[Self] = type(self)
+        _other: Self = self_type(other) if isinstance(other, float) else other
+        out: Self = self_type(self.data + _other.data, (self, _other), "+")
 
         def _backward() -> None:
             self.grad += out.grad  # d(out)/d(self) = 1
@@ -38,9 +40,10 @@ class Scalar:
 
         return out
 
-    def __sub__(self, other: Union["Scalar", float]) -> "Scalar":
-        _other: Scalar = other if isinstance(other, Scalar) else Scalar(other)
-        out: Scalar = Scalar(self.data - _other.data, (self, _other), "-")
+    def __sub__(self, other: Self | float) -> Self:
+        self_type: type[Self] = type(self)
+        _other: Self = self_type(other) if isinstance(other, float) else other
+        out: Self = self_type(self.data - _other.data, (self, _other), "-")
 
         def _backward() -> None:
             self.grad += out.grad  # d(out)/d(self) = 1
@@ -50,9 +53,10 @@ class Scalar:
 
         return out
 
-    def __mul__(self, other: Union["Scalar", float]) -> "Scalar":
-        _other = other if isinstance(other, Scalar) else Scalar(other)
-        out = Scalar(self.data * _other.data, (self, _other), "*")
+    def __mul__(self, other: Self | float) -> Self:
+        self_type: type[Self] = type(self)
+        _other: Self = self_type(other) if isinstance(other, float) else other
+        out = self_type(self.data * _other.data, (self, _other), "*")
 
         def _backward() -> None:
             self.grad += out.grad * _other.data  # d(out)/d(self) = other
@@ -62,9 +66,10 @@ class Scalar:
 
         return out
 
-    def __truediv__(self, other: Union["Scalar", float]) -> "Scalar":
-        _other = other if isinstance(other, Scalar) else Scalar(other)
-        out = Scalar(self.data / _other.data, (self, _other), "/")
+    def __truediv__(self, other: Self | float) -> Self:
+        self_type: type[Self] = type(self)
+        _other: Self = self_type(other) if isinstance(other, float) else other
+        out = self_type(self.data / _other.data, (self, _other), "/")
 
         def _backward() -> None:
             self.grad += out.grad / _other.data  # d(out)/d(self) = 1/other
@@ -75,10 +80,10 @@ class Scalar:
 
         return out
 
-    def relu(self) -> "Scalar":
+    def relu(self) -> Self:
         """Compute ReLU"""
-
-        out = Scalar(0 if self.data < 0 else self.data, (self,), "ReLU")
+        self_type: type[Self] = type(self)
+        out = self_type(0 if self.data < 0 else self.data, (self,), "ReLU")
 
         def _backward() -> None:
             self.grad += (out.data > 0) * out.grad
@@ -90,9 +95,9 @@ class Scalar:
     def backward(self) -> None:
         """Compute gradients through backpropagation"""
 
-        # Topological order all of the children in the graph
+        # Topological order all the children in the graph
         topo: Vector = []
-        visited: Set[Scalar] = set()
+        visited: set[Scalar] = set()
 
         def build_topo(node: Scalar) -> None:
             if node not in visited:
@@ -108,22 +113,24 @@ class Scalar:
         for node in reversed(topo):
             node._backward()
 
-    def __radd__(self, other: Union["Scalar", float]) -> "Scalar":
+    def __radd__(self, other: Self | float) -> Self:
         return self.__add__(other)
 
-    def __rsub__(self, other: Union["Scalar", float]) -> "Scalar":
-        _other = other if isinstance(other, Scalar) else Scalar(other)
+    def __rsub__(self, other: Self | float) -> Self:
+        self_type: type[Self] = type(self)
+        _other: Self = self_type(other) if isinstance(other, float) else other
         return _other.__sub__(self)
 
-    def __rmul__(self, other: Union["Scalar", float]) -> "Scalar":
+    def __rmul__(self, other: Self | float) -> Self:
         return self.__mul__(other)
 
-    def __rtruediv__(self, other: Union["Scalar", float]) -> "Scalar":
-        _other = other if isinstance(other, Scalar) else Scalar(other)
+    def __rtruediv__(self, other: Self | float) -> Self:
+        self_type: type[Self] = type(self)
+        _other: Self = self_type(other) if isinstance(other, float) else other
         return _other.__truediv__(self)
 
     def __repr__(self) -> str:
         return f"Scalar(data={self.data}, grad={self.grad})"
 
 
-Vector = List[Scalar]
+Vector = list[Scalar]

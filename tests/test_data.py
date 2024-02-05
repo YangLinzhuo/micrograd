@@ -2,23 +2,20 @@
 Unit tests for data utilities
 """
 
-# pylint: disable=missing-docstring
-
 from collections import Counter
-from typing import List
 from pyfit.engine import Vector, Scalar
 from pyfit.data import BatchIterator
 
 
 def test_batch_iterator() -> None:
     # Generate lists of 8 scalars with same values
-    inputs: List[Vector] = [[Scalar(x)] for x in range(8)]
+    inputs: list[Vector] = [[Scalar(x)] for x in range(8)]
     targets: Vector = [Scalar(x) for x in range(8)]
 
     batch_size = 3
     data_iterator = BatchIterator(inputs, targets, batch_size=batch_size)
 
-    batch_sizes: List[int] = []
+    batch_sizes: list[int] = []
     for batch in data_iterator():
         # Check lengths of batches
         assert len(batch.inputs) == len(batch.targets)

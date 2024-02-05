@@ -2,8 +2,6 @@
 Unit tests for autodiff engine
 """
 
-# pylint: disable=missing-docstring
-
 from pyfit.engine import Scalar
 
 

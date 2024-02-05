@@ -7,10 +7,11 @@ Heavily inspired by https://github.com/joelgrus/joelnet/blob/master/joelnet/data
 # pylint: disable=too-few-public-methods
 
 import random
-from typing import NamedTuple, Iterator, List
+from typing import NamedTuple
+from collections.abc import Iterator
 from pyfit.engine import Vector
 
-Batch = NamedTuple("Batch", [("inputs", List[Vector]), ("targets", Vector)])
+Batch = NamedTuple("Batch", [("inputs", list[Vector]), ("targets", Vector)])
 
 
 class BatchIterator:
@@ -18,12 +19,12 @@ class BatchIterator:
 
     def __init__(
         self,
-        inputs: List[Vector],
+        inputs: list[Vector],
         targets: Vector,
         batch_size: int = 32,
         shuffle: bool = True,
     ) -> None:
-        self.inputs: List[Vector] = inputs
+        self.inputs: list[Vector] = inputs
         self.targets: Vector = targets
         self.batch_size = batch_size
         self.shuffle = shuffle

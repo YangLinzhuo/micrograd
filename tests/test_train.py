@@ -2,9 +2,6 @@
 Unit tests for training API
 """
 
-# pylint: disable=missing-docstring
-
-from typing import List
 from pyfit.engine import Scalar, Vector
 from pyfit.nn import MLP
 from pyfit.optim import SGD
@@ -15,8 +12,8 @@ from pyfit.train import Trainer, History
 
 def test_trainer() -> None:
     # dataset for AND logical function
-    x_train: List[Vector] = [
-        list(map(Scalar, x)) for x in [[0, 0], [0, 1], [1, 0], [1, 1]]
+    x_train: list[Vector] = [
+        [Scalar(val) for val in x] for x in ((0, 0), (0, 1), (1, 0), (1, 1))
     ]
     y_train: Vector = [Scalar(0), Scalar(0), Scalar(0), Scalar(1)]
 

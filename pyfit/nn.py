@@ -5,7 +5,7 @@ Heavily inspired by https://github.com/karpathy/micrograd/blob/master/micrograd/
 """
 
 import random
-from typing import List
+from typing import Any
 from pyfit.engine import Scalar, Vector
 
 
@@ -23,24 +23,29 @@ class Module:
 
         raise NotImplementedError
 
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """Run the computation"""
+
+        raise NotImplementedError
+
 
 class Neuron(Module):
     """A single neuron"""
 
-    def __init__(self, in_features: int, nonlin: bool = True):
+    def __init__(self, in_features: int, nonlinear: bool = True):
         self.w: Vector = [Scalar(random.uniform(-1, 1)) for _ in range(in_features)]
         self.b: Scalar = Scalar(0)
-        self.nonlin = nonlin
+        self.nonlinear = nonlinear
 
     def __call__(self, x: Vector) -> Scalar:
         act: Scalar = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
-        return act.relu() if self.nonlin else act
+        return act.relu() if self.nonlinear else act
 
     def parameters(self) -> Vector:
         return self.w + [self.b]
 
     def __repr__(self) -> str:
-        return f"{'ReLU' if self.nonlin else 'Linear'}Neuron({len(self.w)})"
+        return f"{'ReLU' if self.nonlinear else 'Linear'}Neuron({len(self.w)})"
 
 
 class Layer(Module):
@@ -62,8 +67,8 @@ class Layer(Module):
 class MLP(Module):
     """A Multi-Layer Perceptron, aka shallow neural network"""
 
-    def __init__(self, input_features: int, layers: List[int]):
-        sizes: List[int] = [input_features] + layers
+    def __init__(self, input_features: int, layers: list[int]):
+        sizes: list[int] = [input_features] + layers
         # Only last layer is linear
         self.layers = [
             Layer(sizes[i], sizes[i + 1], nonlin=i != len(layers) - 1)

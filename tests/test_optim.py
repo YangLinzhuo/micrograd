@@ -2,8 +2,6 @@
 Unit tests for optimizers
 """
 
-# pylint: disable=missing-docstring
-
 from pyfit.engine import Vector, Scalar
 from pyfit.optim import SGD
 

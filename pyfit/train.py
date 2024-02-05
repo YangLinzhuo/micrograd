@@ -4,7 +4,7 @@ Training API
 
 # pylint: disable=too-few-public-methods
 
-from typing import Callable, Dict, List
+from collections.abc import Callable
 from pyfit.engine import Vector, Scalar
 from pyfit.nn import Module
 from pyfit.optim import Optimizer
@@ -12,7 +12,7 @@ from pyfit.data import BatchIterator
 from pyfit.metrics import binary_accuracy
 
 # Used to record training history for metrics
-History = Dict[str, List[float]]
+History = dict[str, list[float]]
 
 
 class Trainer:
@@ -31,8 +31,8 @@ class Trainer:
         history: History = {"loss": [], "acc": []}
         epoch_loss: float = 0
         epoch_acc: float = 0
-        epoch_y_true: List[Scalar] = []
-        epoch_y_pred: List[Scalar] = []
+        epoch_y_true: list[Scalar] = []
+        epoch_y_pred: list[Scalar] = []
         for epoch in range(num_epochs):
             # Reset the gradients of model parameters
             self.optimizer.zero_grad()
@@ -44,7 +44,7 @@ class Trainer:
             for batch in data_iterator():
                 # Forward pass
                 # TODO fix mypy error when mapping model to inputs
-                outputs = list(map(self.model, batch.inputs))  # type: ignore
+                outputs = [self.model(item) for item in batch.inputs]
 
                 # Loss computation
                 batch_y_pred: Vector = [item for sublist in outputs for item in sublist]
