@@ -17,7 +17,7 @@ class Scalar:
     def __init__(
         self, data: float, children: tuple[Self, ...] = (), op: str = ""
     ) -> None:
-        self.data: float = data #if isinstance(data, float) else data.data
+        self.data: float = data
         self.grad: float = 0
 
         # Internal variables used for autograd graph construction
@@ -29,7 +29,7 @@ class Scalar:
 
     def __add__(self, other: Self | float) -> Self:
         self_type: type[Self] = type(self)
-        _other: Self = self_type(other) if isinstance(other, float) else other
+        _other: Self = self_type(other) if isinstance(other, float | int) else other
         out: Self = self_type(self.data + _other.data, (self, _other), "+")
 
         def _backward() -> None:
@@ -42,7 +42,7 @@ class Scalar:
 
     def __sub__(self, other: Self | float) -> Self:
         self_type: type[Self] = type(self)
-        _other: Self = self_type(other) if isinstance(other, float) else other
+        _other: Self = self_type(other) if isinstance(other, float | int) else other
         out: Self = self_type(self.data - _other.data, (self, _other), "-")
 
         def _backward() -> None:
@@ -55,7 +55,7 @@ class Scalar:
 
     def __mul__(self, other: Self | float) -> Self:
         self_type: type[Self] = type(self)
-        _other: Self = self_type(other) if isinstance(other, float) else other
+        _other: Self = self_type(other) if isinstance(other, float | int) else other
         out = self_type(self.data * _other.data, (self, _other), "*")
 
         def _backward() -> None:
@@ -68,7 +68,7 @@ class Scalar:
 
     def __truediv__(self, other: Self | float) -> Self:
         self_type: type[Self] = type(self)
-        _other: Self = self_type(other) if isinstance(other, float) else other
+        _other: Self = self_type(other) if isinstance(other, float | int) else other
         out = self_type(self.data / _other.data, (self, _other), "/")
 
         def _backward() -> None:
@@ -118,7 +118,7 @@ class Scalar:
 
     def __rsub__(self, other: Self | float) -> Self:
         self_type: type[Self] = type(self)
-        _other: Self = self_type(other) if isinstance(other, float) else other
+        _other: Self = self_type(other) if isinstance(other, float | int) else other
         return _other.__sub__(self)
 
     def __rmul__(self, other: Self | float) -> Self:
@@ -126,7 +126,7 @@ class Scalar:
 
     def __rtruediv__(self, other: Self | float) -> Self:
         self_type: type[Self] = type(self)
-        _other: Self = self_type(other) if isinstance(other, float) else other
+        _other: Self = self_type(other) if isinstance(other, float | int) else other
         return _other.__truediv__(self)
 
     def __repr__(self) -> str:
